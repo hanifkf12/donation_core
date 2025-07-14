@@ -31,7 +31,7 @@ impl ReadService for UserService {
     }
 
     async fn get_by_id(&self, pool: &PgPool, id: Uuid) -> Result<Option<Self::ReadModel>, Self::Error> {
-        todo!("Implement get_by_id")
+       self.user_repo.get_user_by_id(pool, id).await
     }
 }
 
@@ -46,10 +46,11 @@ impl WriteService for UserService {
     }
 
     async fn update(&self, pool: &PgPool, id: Uuid, payload: Self::UpdatePayload) -> Result<Self::WriteModel, Self::Error> {
-        todo!("Implement update")
+        self.user_repo.update_user(pool, id, payload).await
     }
 
     async fn delete(&self, pool: &PgPool, id: Uuid) -> Result<(), Self::Error> {
-        todo!("Implement delete")
+        self.user_repo.delete_user(pool, id).await
     }
+
 }
