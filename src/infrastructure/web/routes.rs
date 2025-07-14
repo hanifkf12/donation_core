@@ -1,7 +1,11 @@
-use crate::infrastructure::web::user_routes::get_users_route;
+use crate::infrastructure::web::user_routes::{get_users_route, create_user_route};
 use actix_web::web;
 use actix_web::web::ServiceConfig;
 
 pub fn routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/users").route("", web::get().to(get_users_route)));
+    cfg.service(
+        web::scope("/users")
+            .route("", web::get().to(get_users_route))
+            .route("", web::post().to(create_user_route))
+    );
 }

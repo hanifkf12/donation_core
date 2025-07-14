@@ -1,12 +1,15 @@
-use crate::application::services::user_service::UserService;
-use sqlx::{PgPool};
+use crate::application::services::service::Service;
+use sqlx::PgPool;
 
 #[async_trait::async_trait]
-pub trait Command: Send + Sync {
-    type Output;
+pub trait Command<S, Input = (), Output = ()>: Send + Sync 
+where
+    S: Service,
+{
     async fn execute(
         &self,
-        user_service: &UserService,
+        service: &S,
         pool: &PgPool,
-    ) -> Result<Self::Output, sqlx::Error>;
+        input: Input,
+    ) -> Result<Output, S::Error>;
 }
