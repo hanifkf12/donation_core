@@ -1,9 +1,9 @@
 use crate::application::services::user_service::UserService;
 use crate::application::use_cases::contracts::Command;
-use crate::application::use_cases::users::get_users::{GetUsersUseCase, GetUserByIdUseCase};
 use crate::application::use_cases::users::create_user::{CreateUserRequest, CreateUserUseCase};
-use crate::application::use_cases::users::update_user::{UpdateUserUseCase};
 use crate::application::use_cases::users::delete_user::DeleteUserUseCase;
+use crate::application::use_cases::users::get_users::{GetUserByIdUseCase, GetUsersUseCase};
+use crate::application::use_cases::users::update_user::UpdateUserUseCase;
 use crate::infrastructure::database::repositories::sqlx_user_repository::SqlxUserRepositoryImpl;
 use actix_web::{HttpResponse, Responder, web};
 use serde::Serialize;
@@ -23,7 +23,10 @@ pub async fn get_users_route(pool: web::Data<PgPool>) -> impl Responder {
     let user_repo = Arc::new(SqlxUserRepositoryImpl);
     let user_service = UserService::new(user_repo);
 
-    match GetUsersUseCase.execute(&user_service, pool.get_ref(), ()).await {
+    match GetUsersUseCase
+        .execute(&user_service, pool.get_ref(), ())
+        .await
+    {
         Ok(users) => HttpResponse::Ok().json(ApiResponse {
             message: Some("Users fetched successfully".to_string()),
             success: true,
@@ -39,11 +42,17 @@ pub async fn get_users_route(pool: web::Data<PgPool>) -> impl Responder {
     }
 }
 
-pub async fn create_user_route(pool: web::Data<PgPool>, request: web::Json<CreateUserRequest>) -> impl Responder {
+pub async fn create_user_route(
+    pool: web::Data<PgPool>,
+    request: web::Json<CreateUserRequest>,
+) -> impl Responder {
     let user_repo = Arc::new(SqlxUserRepositoryImpl);
     let user_service = UserService::new(user_repo);
 
-    match CreateUserUseCase.execute(&user_service, pool.get_ref(), request.into_inner()).await {
+    match CreateUserUseCase
+        .execute(&user_service, pool.get_ref(), request.into_inner())
+        .await
+    {
         Ok(user) => HttpResponse::Created().json(ApiResponse {
             message: Some("User created successfully".to_string()),
             success: true,
@@ -63,7 +72,10 @@ pub async fn get_user_by_id_route(pool: web::Data<PgPool>, id: web::Path<Uuid>) 
     let user_repo = Arc::new(SqlxUserRepositoryImpl);
     let user_service = UserService::new(user_repo);
 
-    match GetUserByIdUseCase.execute(&user_service, pool.get_ref(), id.into_inner()).await {
+    match GetUserByIdUseCase
+        .execute(&user_service, pool.get_ref(), id.into_inner())
+        .await
+    {
         Ok(user) => HttpResponse::Ok().json(ApiResponse {
             message: Some("User fetched successfully".to_string()),
             success: true,
@@ -87,7 +99,14 @@ pub async fn update_user_route(
     let user_repo = Arc::new(SqlxUserRepositoryImpl);
     let user_service = UserService::new(user_repo);
 
-    match UpdateUserUseCase.execute(&user_service, pool.get_ref(), (id.into_inner(), request.into_inner())).await {
+    match UpdateUserUseCase
+        .execute(
+            &user_service,
+            pool.get_ref(),
+            (id.into_inner(), request.into_inner()),
+        )
+        .await
+    {
         Ok(user) => HttpResponse::Ok().json(ApiResponse {
             message: Some("User updated successfully".to_string()),
             success: true,
@@ -107,7 +126,10 @@ pub async fn delete_user_route(pool: web::Data<PgPool>, id: web::Path<Uuid>) -> 
     let user_repo = Arc::new(SqlxUserRepositoryImpl);
     let user_service = UserService::new(user_repo);
 
-    match DeleteUserUseCase.execute(&user_service, pool.get_ref(), id.into_inner()).await {
+    match DeleteUserUseCase
+        .execute(&user_service, pool.get_ref(), id.into_inner())
+        .await
+    {
         Ok(_) => HttpResponse::Ok().json(ApiResponse::<()> {
             message: Some("User deleted successfully".to_string()),
             success: true,

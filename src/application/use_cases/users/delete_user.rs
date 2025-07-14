@@ -1,8 +1,8 @@
-use crate::{application::services::user_service::UserService, domain::models::user::User};
-use crate::application::use_cases::contracts::Command;
-use sqlx::{Error, PgPool};
-use async_trait::async_trait;
 use crate::application::services::service::WriteService;
+use crate::application::use_cases::contracts::Command;
+use crate::{application::services::user_service::UserService, domain::models::user::User};
+use async_trait::async_trait;
+use sqlx::{Error, PgPool};
 use uuid::Uuid;
 
 pub struct DeleteUserUseCase;

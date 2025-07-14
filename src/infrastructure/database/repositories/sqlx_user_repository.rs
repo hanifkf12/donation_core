@@ -1,9 +1,9 @@
+use crate::application::use_cases::users::create_user::CreateUserRequest;
 use crate::domain::models::user::User;
 use crate::infrastructure::database::repositories::user_repository::UserRepository;
 use async_trait::async_trait;
-use sqlx::{PgPool, query_as};
-use crate::application::use_cases::users::create_user::CreateUserRequest;
 use chrono::Utc;
+use sqlx::{PgPool, query_as};
 use uuid::Uuid;
 
 pub struct SqlxUserRepositoryImpl;
@@ -16,8 +16,13 @@ impl UserRepository for SqlxUserRepositoryImpl {
             .await
     }
 
-    async fn get_user_by_id(&self, pg_pool: &PgPool, id: Uuid) -> Result<Option<User>, sqlx::Error> {
-        query_as!(User, 
+    async fn get_user_by_id(
+        &self,
+        pg_pool: &PgPool,
+        id: Uuid,
+    ) -> Result<Option<User>, sqlx::Error> {
+        query_as!(
+            User,
             "SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL;",
             id
         )
@@ -25,7 +30,11 @@ impl UserRepository for SqlxUserRepositoryImpl {
         .await
     }
 
-    async fn create_user(&self, pg_pool: &PgPool, request: CreateUserRequest) -> Result<User, sqlx::Error> {
+    async fn create_user(
+        &self,
+        pg_pool: &PgPool,
+        request: CreateUserRequest,
+    ) -> Result<User, sqlx::Error> {
         let now = Utc::now().naive_utc();
         let user = query_as!(User,
             "INSERT INTO users (id, username, email, password, is_verified, created_at, updated_at) 
@@ -45,9 +54,15 @@ impl UserRepository for SqlxUserRepositoryImpl {
         Ok(user)
     }
 
-    async fn update_user(&self, pg_pool: &PgPool, id: Uuid, request: CreateUserRequest) -> Result<User, sqlx::Error> {
+    async fn update_user(
+        &self,
+        pg_pool: &PgPool,
+        id: Uuid,
+        request: CreateUserRequest,
+    ) -> Result<User, sqlx::Error> {
         let now = Utc::now().naive_utc();
-        let user = query_as!(User,
+        let user = query_as!(
+            User,
             "UPDATE users 
              SET username = $1, email = $2, password = $3, updated_at = $4
              WHERE id = $5 AND deleted_at IS NULL
@@ -66,7 +81,8 @@ impl UserRepository for SqlxUserRepositoryImpl {
 
     async fn delete_user(&self, pg_pool: &PgPool, id: Uuid) -> Result<(), sqlx::Error> {
         let now = Utc::now().naive_utc();
-        query_as!(User,
+        query_as!(
+            User,
             "UPDATE users 
              SET deleted_at = $1
              WHERE id = $2 AND deleted_at IS NULL

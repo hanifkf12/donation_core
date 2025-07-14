@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+opentelemetry = { version = "0.18.0", features = ["rt-tokio", "metrics", "trace"] }
+opentelemetry-otlp = { version = "0.11.0", features = ["trace", "metrics"] }
+opentelemetry-semantic-conventions = { version = "0.10.0" }
+opentelemetry-proto = { version = "0.1.0"}
+tonic = { version = "0.8.2", features = ["tls-roots"] }
+actix-web-opentelemetry = "0.13.0"
 actix-web = "4.11.0"
 serde = { version = "1.0.219", features = ["derive"] }
 sqlx = { version = "0.8.6", features = ["postgres", "uuid", "chrono", "runtime-tokio-rustls", "bigdecimal"] }

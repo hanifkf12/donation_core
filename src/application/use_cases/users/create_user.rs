@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
-use crate::application::services::user_service::UserService;
 use crate::application::services::service::WriteService;
+use crate::application::services::user_service::UserService;
 use crate::application::use_cases::contracts::Command;
 use crate::domain::models::user::User;
+use serde::{Deserialize, Serialize};
 use sqlx::{Error, PgPool};
 
 #[derive(Debug, Serialize, Deserialize)]
