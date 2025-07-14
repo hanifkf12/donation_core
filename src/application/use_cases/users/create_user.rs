@@ -3,7 +3,7 @@ use crate::application::services::user_service::UserService;
 use crate::application::services::service::WriteService;
 use crate::application::use_cases::contracts::Command;
 use crate::domain::models::user::User;
-use sqlx::PgPool;
+use sqlx::{Error, PgPool};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateUserRequest {
@@ -20,8 +20,8 @@ impl Command<UserService, CreateUserRequest, User> for CreateUserUseCase {
         &self,
         service: &UserService,
         pool: &PgPool,
-        input: CreateUserRequest,
-    ) -> Result<User, sqlx::Error> {
-        service.create(pool, input).await
+        request: CreateUserRequest,
+    ) -> Result<User, Error> {
+        service.create(pool, request).await
     }
 }

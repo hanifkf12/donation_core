@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use sqlx::PgPool;
+use uuid::Uuid;
 
 #[async_trait]
 pub trait Service: Send + Sync {
@@ -19,8 +20,8 @@ pub trait WriteService: Service {
     type WriteModel;
     type CreatePayload;
     type UpdatePayload;
-    
+
     async fn create(&self, pool: &PgPool, payload: Self::CreatePayload) -> Result<Self::WriteModel, Self::Error>;
-    async fn update(&self, pool: &PgPool, id: uuid::Uuid, payload: Self::UpdatePayload) -> Result<Self::WriteModel, Self::Error>;
-    async fn delete(&self, pool: &PgPool, id: uuid::Uuid) -> Result<(), Self::Error>;
+    async fn update(&self, pool: &PgPool, id: Uuid, payload: Self::UpdatePayload) -> Result<Self::WriteModel, Self::Error>;
+    async fn delete(&self, pool: &PgPool, id: Uuid) -> Result<(), Self::Error>;
 }
