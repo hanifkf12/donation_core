@@ -4,6 +4,7 @@ use crate::application::use_cases::contracts::Command;
 use crate::application::use_cases::users::create_user::CreateUserRequest;
 use crate::domain::models::user::User;
 use async_trait::async_trait;
+use log::error;
 use sqlx::{Error, PgPool};
 use uuid::Uuid;
 
@@ -16,8 +17,14 @@ impl Command<UserService, (Uuid, CreateUserRequest), User> for UpdateUserUseCase
         service: &UserService,
         pool: &PgPool,
         input: (Uuid, CreateUserRequest),
-    ) -> Result<User, sqlx::Error> {
+    ) -> Result<User, Error> {
         let (id, request) = input;
-        service.update(pool, id, request).await
+        match service.update(pool, id, request.clone()).await {
+            Ok(user) => Ok(user),
+            Err(e) => {
+                error!("UpdateUserUseCase failed: {}, id: {}, request: {:?}", e, id, request);
+                Err(e)
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ use crate::application::services::user_service::UserService;
 use crate::application::use_cases::contracts::Command;
 use crate::domain::models::user::User;
 use async_trait::async_trait;
+use log::error;
 use sqlx::{Error, PgPool};
 use uuid::Uuid;
 
@@ -17,8 +18,13 @@ impl Command<UserService, (), Option<Vec<User>>> for GetUsersUseCase {
         pool: &PgPool,
         _input: (),
     ) -> Result<Option<Vec<User>>, Error> {
-        let users = service.get_all(pool).await?;
-        Ok(Some(users))
+        match service.get_all(pool).await {
+            Ok(users) => Ok(Some(users)),
+            Err(e) => {
+                error!("GetUsersUseCase failed: {}", e);
+                Err(e)
+            }
+        }
     }
 }
 
@@ -30,6 +36,12 @@ impl Command<UserService, Uuid, Option<User>> for GetUserByIdUseCase {
         pool: &PgPool,
         id: Uuid,
     ) -> Result<Option<User>, Error> {
-        service.get_by_id(pool, id).await
+        match service.get_by_id(pool, id).await {
+            Ok(user) => Ok(user),
+            Err(e) => {
+                error!("GetUserByIdUseCase failed: {}, id: {}", e, id);
+                Err(e)
+            }
+        }
     }
 }

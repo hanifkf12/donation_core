@@ -1,10 +1,8 @@
-use opentelemetry::global::shutdown_tracer_provider;
 use opentelemetry::sdk::Resource;
 use opentelemetry::trace::TraceError;
 use opentelemetry::{
-    Context, Key, KeyValue, global,
     sdk::trace as sdktrace,
-    trace::{TraceContextExt, Tracer},
+    KeyValue,
 };
 use opentelemetry_otlp::WithExportConfig;
 use tonic::metadata::{MetadataMap, MetadataValue};
