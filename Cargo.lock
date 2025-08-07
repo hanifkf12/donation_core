@@ -897,6 +897,7 @@ dependencies = [
  "serde",
  "sqlx",
  "sqlx-cli",
+ "tokio",
  "tonic",
  "uuid",
 ]

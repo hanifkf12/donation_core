@@ -5,6 +5,9 @@ use actix_web::middleware::Logger;
 use actix_web::{App, HttpResponse, HttpServer, Responder, get, web};
 use dotenvy::dotenv;
 use opentelemetry::global::shutdown_tracer_provider;
+use tokio::signal::unix::{signal, SignalKind};
+use std::sync::Arc;
+use tokio::sync::Notify;
 
 mod application;
 mod domain;
@@ -34,6 +37,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let _ = init_tracer();
 
+    // Create a notify instance for graceful shutdown
+    let shutdown = Arc::new(Notify::new());
+    let shutdown_clone = shutdown.clone();
+
+    // Set up signal handlers
+    let _signal_handler = tokio::spawn(async move {
+        let mut sigterm = signal(SignalKind::terminate()).expect("Failed to register SIGTERM handler");
+        let mut sigint = signal(SignalKind::interrupt()).expect("Failed to register SIGINT handler");
+        
+        tokio::select! {
+            _ = sigterm.recv() => {
+                log::info!("Received SIGTERM, starting graceful shutdown");
+            }
+            _ = sigint.recv() => {
+                log::info!("Received SIGINT, starting graceful shutdown");
+            }
+        }
+        
+        shutdown_clone.notify_one();
+    });
+
+    // Start the HTTP server
     let server = HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
@@ -45,7 +70,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .bind(("127.0.0.1", 9090))?
     .run();
 
-    let result = server.await;
+    // Create a handle to the server for graceful shutdown
+    let server_handle = server.handle();
+    
+    // Spawn the server task
+    let server_task = tokio::spawn(server);
+    
+    // Wait for shutdown signal
+    shutdown.notified().await;
+    log::info!("Starting graceful shutdown process");
+    
+    // Gracefully stop the server
+    server_handle.stop(true).await;
+    
+    // Wait for the server to complete
+    let result = server_task.await.expect("Server task panicked")?;
+    
+    // Clean up resources
+    log::info!("Shutting down OpenTelemetry tracer");
     shutdown_tracer_provider();
-    Ok(result?)
+    
+    log::info!("Graceful shutdown completed");
+    Ok(result)
 }
